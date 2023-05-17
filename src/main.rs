@@ -18,9 +18,17 @@ async fn main() -> anyhow::Result<()> {
 
     let files = direct_children(&current_working_directory)?.join(" ");
 
+    let email = tokio::process::Command::new("git")
+        .arg("config")
+        .arg("user.email")
+        .output()
+        .await?;
+
+    let email = String::from_utf8(email.stdout)?;
+
     let os = std::env::consts::OS;
 
-    let sys = format!("Output idiomatic single-line bash command to accomplish task.\nOS: {os}\nUsername: {user}\nFiles: {files}");
+    let sys = format!("Output idiomatic single-line bash command to accomplish task.\nOS: {os}\nUsername: {user}\nEmail {email}\nFiles: {files}");
 
     let request = ChatRequest::new().sys_msg(sys).user_msg(input);
 
